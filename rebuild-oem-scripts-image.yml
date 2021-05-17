@@ -1,0 +1,40 @@
+resource_types:
+- name: resource-deb-versions
+  type: registry-image
+  check_every: 24h
+  source:
+    repository: ghcr.io/fourdollars/deb-versions-resource
+
+resources:
+- name: oem-scripts-version
+  icon: counter
+  type: resource-deb-versions
+  check_every: 5m
+  source:
+    archive: "ppa:oem-solutions-engineers/pc-enablement-tools focal"
+    fingerprint: 61479F09128D48D9EC2474487A2744FE9779165B
+    packages: [oem-scripts]
+- name: oem-scripts-image
+  icon: ubuntu
+  type: registry-image
+  check_every: 15m
+  source:
+    repository: ghcr.io/fourdollars/oem-scripts-docker
+    tag: latest
+
+jobs:
+- name: rebuild-image
+  plan:
+    - get: oem-scripts-version
+      trigger: true
+    - get: oem-scripts-image
+    - task: trigger
+      image: oem-scripts-image
+      config:
+        platform: linux
+        run:
+          path: /bin/sh
+          args:
+          - -ec
+          - |
+            http https://api.github.com/repos/fourdollars/oem-scripts-docker/dispatches event_type=rebuild-image 'Accept: application/vnd.github.v3+json' 'Authorization: token ((github-token))'
