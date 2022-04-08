@@ -83,8 +83,10 @@ jobs:
           echo VERSION=$VERSION
 
           docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
+          docker tag $IMAGE_NAME $IMAGE_ID:focal
           docker tag $IMAGE_NAME-jammy $IMAGE_ID:jammy
           docker push $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:focal
           docker push $IMAGE_ID:jammy
 
       - name: Log into Docker Hub
@@ -110,6 +112,8 @@ jobs:
           echo VERSION=$VERSION
 
           docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
+          docker tag $IMAGE_NAME $IMAGE_ID:focal
           docker tag $IMAGE_NAME-jammy $IMAGE_ID:jammy
           docker push $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:focal
           docker push $IMAGE_ID:jammy
