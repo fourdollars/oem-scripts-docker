@@ -26,5 +26,5 @@ rm /root/.bash_aliases
 go install github.com/mikefarah/yq/v4@latest
 mkdir -p /usr/local/bin/
 cp -v /root/.local/share/go/bin/yq /usr/local/bin/
-rm -fr /root/.local/share/go
+rm -fr /root/.local/share/go /root/.cache/go-build
 EOF
