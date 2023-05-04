@@ -7,7 +7,7 @@ apt-get -q -q update
 apt-get full-upgrade --yes
 apt-get install --yes software-properties-common jq debian-archive-keyring distro-info openssh-client curl python3-yaml bind9-dnsutils jenkins-job-builder
 add-apt-repository --yes ppa:oem-solutions-engineers/pc-enablement-tools
-apt-get --yes install --no-install-recommends oem-scripts colordiff
+apt-get --yes install --no-install-recommends oem-scripts colordiff rclone python3-jira
 EOF
 RUN <<EOF
 # Install yq from https://github.com/mikefarah/yq/
