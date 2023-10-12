@@ -6,7 +6,7 @@ RUN <<EOF
 # Install oem-scripts from ppa:oem-solutions-engineers/pc-enablement-tools
 apt-get -q -q update
 apt-get full-upgrade --yes
-apt-get install --yes software-properties-common jq debian-archive-keyring distro-info openssh-client curl python3-yaml bind9-dnsutils jenkins-job-builder
+apt-get install --yes software-properties-common jq debian-archive-keyring distro-info openssh-client curl python3-yaml bind9-dnsutils jenkins-job-builder libdistro-info-perl
 add-apt-repository --yes ppa:oem-solutions-engineers/pc-enablement-tools
 apt-get --yes install --no-install-recommends oem-scripts colordiff rclone python3-jira
 rm -fr /var/lib/apt
