@@ -1,5 +1,6 @@
 # syntax=docker/dockerfile:1.4
-FROM ubuntu:focal
+ARG TAG=latest
+FROM ubuntu:${TAG}
 ENV DEBIAN_FRONTEND=noninteractive
 RUN <<EOF
 # Install oem-scripts from ppa:oem-solutions-engineers/pc-enablement-tools
