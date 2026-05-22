@@ -25,6 +25,7 @@ env:
 permissions:
   contents: read
   packages: write
+  id-token: write
 
 jobs:
   # Run tests.
@@ -57,6 +58,11 @@ jobs:
 
     runs-on: ubuntu-latest
     if: github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'repository_dispatch'
+    
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
 
     steps:
       - uses: actions/checkout@v4
@@ -68,26 +74,14 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
-          username: ${{ github.actor }}
+          username: ${{ github.repository_owner }}
           password: ${{ github.token }}
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
-          username: ${{ github.actor }}
+          username: ${{ github.repository_owner }}
           password: ${{ secrets.DOCKER_HUB }}
-
-      - name: Extract metadata
-        id: meta
-        run: |
-          IMAGE_ID=ghcr.io/${{ github.repository }}
-          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
-          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
-          [ "$VERSION" == "main" ] && VERSION=latest
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "ghcr_image_id=$IMAGE_ID" >> $GITHUB_OUTPUT
-          echo "docker_image_id=$(echo ${{ github.repository }} | tr '[A-Z]' '[a-z]')" >> $GITHUB_OUTPUT
 
       - name: Build and push to GitHub Container Registry
         uses: docker/build-push-action@v6
@@ -95,7 +89,7 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ steps.meta.outputs.ghcr_image_id }}:${{ matrix.tag }}
+            ghcr.io/${{ github.repository_owner }}/oem-scripts-docker:${{ matrix.tag }}
           build-args: |
             TAG=${{ matrix.tag }}
 
@@ -105,6 +99,6 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ steps.meta.outputs.docker_image_id }}:${{ matrix.tag }}
+            ${{ github.repository_owner }}/oem-scripts-docker:${{ matrix.tag }}
           build-args: |
             TAG=${{ matrix.tag }}
