@@ -3,6 +3,7 @@ ARG TAG=latest
 FROM ubuntu:${TAG}
 ENV DEBIAN_FRONTEND=noninteractive
 RUN <<EOF
+set -euo pipefail
 # Install oem-scripts from ppa:oem-solutions-engineers/pc-enablement-tools
 apt-get -q -q update
 apt-get full-upgrade --yes
