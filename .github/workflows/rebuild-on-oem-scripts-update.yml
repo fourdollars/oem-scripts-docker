@@ -1,0 +1,57 @@
+name: Rebuild image on oem-scripts update
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/30 * * * *"
+
+permissions:
+  contents: write
+  packages: read
+
+jobs:
+  check-and-dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      - name: Check versions and trigger rebuild
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PPA_PACKAGES_URL: https://ppa.launchpadcontent.net/oem-solutions-engineers/pc-enablement-tools/ubuntu/dists/focal/main/binary-amd64/Packages.gz
+          IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/oem-scripts-docker:latest
+        run: |
+          set -euo pipefail
+
+          ppa_version="$(curl -fsSL "$PPA_PACKAGES_URL" | gzip -dc | awk '
+            /^Package: oem-scripts$/ { in_pkg=1; next }
+            in_pkg && /^Package: / { in_pkg=0 }
+            in_pkg && /^Version: / { print $2; exit }
+          ')"
+
+          if [ -z "$ppa_version" ]; then
+            echo "Failed to determine oem-scripts version from PPA."
+            exit 1
+          fi
+
+          image_version="$(docker run --rm "$IMAGE_NAME" dpkg-query -W -f='${Version}\n' oem-scripts)"
+
+          if [ -z "$image_version" ]; then
+            echo "Failed to determine oem-scripts version from image."
+            exit 1
+          fi
+
+          echo "PPA version: $ppa_version"
+          echo "Image version: $image_version"
+
+          if dpkg --compare-versions "$ppa_version" gt "$image_version"; then
+            echo "Newer oem-scripts detected. Dispatching rebuild-image event."
+            gh api repos/${{ github.repository }}/dispatches -f event_type=rebuild-image
+          else
+            echo "Image is already up to date."
+          fi
