@@ -35,6 +35,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Run tests
         run: |
           export DOCKER_BUILDKIT=1
@@ -42,7 +45,8 @@ jobs:
             docker-compose --file docker-compose.test.yml build
             docker-compose --file docker-compose.test.yml run sut
           else
-            docker build . --file Dockerfile
+            # Match the publish buildx path so shell/buildx regressions fail early.
+            docker buildx build --load .
           fi
 
   # Push image to GitHub Packages.

@@ -2,6 +2,7 @@
 ARG TAG=latest
 FROM ubuntu:${TAG}
 ENV DEBIAN_FRONTEND=noninteractive
+SHELL ["/bin/bash", "-c"]
 RUN <<EOF
 set -euo pipefail
 # Install oem-scripts from ppa:oem-solutions-engineers/pc-enablement-tools
